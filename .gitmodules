@@ -1,0 +1,3 @@
+[submodule "lib/cul"]
+	path = lib/cul
+	url = https://github.com/ariajanke/util-common
