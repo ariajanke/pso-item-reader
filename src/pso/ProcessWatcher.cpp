@@ -25,6 +25,8 @@
 
 #include "../Defs.hpp"
 
+#include <fstream>
+
 #include <cstdio>
 #include <cassert>
 
@@ -84,7 +86,10 @@ void PsobbProcessWatcher::handle_tick(double) {
 
     try {
         int pid = k_no_pid;
-        if (string_to_number_multibase(contents, pid)) {
+        auto beg = contents.begin();
+        auto end = contents.end();
+        trim<is_whitespace>(beg, end);
+        if (string_to_number_multibase(beg, end, pid)) {
             switch_state<BankViewState>().setup(
                 MemoryReader::make_process_reader(pid));
         }
@@ -93,6 +98,10 @@ void PsobbProcessWatcher::handle_tick(double) {
         update_bad_permission_message();
         [[maybe_unused]] auto * stateptr = &switch_state<PsobbProcessWatcher>();
         assert(this == stateptr);
+    } catch (std::exception & ex) {
+        std::ofstream fout("error.txt");
+        fout << ex.what() << std::endl;
+        throw QuitAppException();
     }
 }
 
